@@ -1,6 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const request = require("request");
+const path = require("path");
+var cors = require("cors");
 
 const Blockchain = require("./blockchain");
 const PubSub = require("./app/pubsub");
@@ -20,12 +22,13 @@ const transactionMiner = new TransactionMiner({
 	pubsub,
 });
 
-const DEFAULT_PORT = 3000;
+const DEFAULT_PORT = 3001;
 const ROOT_NODE_ADDRESS = `http://localhost:${DEFAULT_PORT}`;
 
 // setTimeout(() => pubsub.broadcastChain(), 1000);
-
+app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, "client")));
 
 app.get("/api/blocks", (req, res) => {
 	res.json(blockchain.chain);
@@ -89,6 +92,10 @@ app.get("/api/wallet-info", (req, res) => {
 		}),
 	});
 });
+
+// app.get("*", (req, res) => {
+// 	res.sendFile(path.join(__dirname, "client/index.html"));
+// });
 
 const syncWithRootState = () => {
 	request(
